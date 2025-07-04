@@ -3,78 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🔐 Login – Controle de Remédios</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1d3557" />
-  <link rel="icon" href="icons/icon-192.png" />
-
-  <!-- Estilo -->
+  <title>Controle de Remédios</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- TELA DE LOGIN -->
-  <div id="login-screen" class="screen" role="main" aria-label="Formulário de login">
+  <div id="login-screen" class="screen">
     <div class="login-box">
-      <h1><center>Bem‑vindo, Matheus!</center></h1>
+      <h1>Bem‑vindo, Matheus!</h1>
       <form id="login-form" autocomplete="off">
-        <label for="username">👤 Usuário:</label>
-        <input type="text" id="username" name="username"
-               placeholder="Digite seu usuário" required autocomplete="username" />
-
-        <label for="password">🔒 Senha:</label>
-        <input type="password" id="password" name="password"
-               placeholder="Digite sua senha" required autocomplete="current-password" />
-
-        <button type="submit" aria-label="Entrar no sistema">Entrar 🚀</button>
-        <div id="login-error" class="error-message" role="alert" aria-live="assertive"></div>
+        <label for="username">Usuário:</label>
+        <input id="username" required placeholder="matheus.sso" />
+        <label for="password">Senha:</label>
+        <input id="password" type="password" required placeholder="sso" />
+        <button type="submit">Entrar 🚀</button>
+        <div id="login-error" class="error-message" aria-live="assertive"></div>
       </form>
     </div>
   </div>
 
-  <!-- TELA DE CONTROLE -->
-  <div id="controle-screen" class="screen" style="display:none;"
-       role="main" aria-label="Controle de estoque de remédios">
-    <div class="header-controle">
-      <h1>💊 Controle de Estoque de Remédios</h1>
-      <button id="toggle-theme" aria-label="Alternar modo claro e escuro">🌗 Tema</button>
+  <!-- APP -->
+  <div id="app-screen" class="screen" style="display:none">
+    <h1>💊 Controle de Remédios</h1>
+
+    <!-- Abas -->
+    <div class="tabs">
+      <button id="tab-estoque"  class="tab active">Controle</button>
+      <button id="tab-relatorio" class="tab">Relatório</button>
     </div>
 
-    <div id="last-update" aria-live="polite">Última atualização: --</div>
-    <button id="reset" aria-label="Resetar estoque">🗑️ Resetar Estoque</button>
+    <!-- Conteúdo: estoque -->
+    <section id="estoque-content">
+      <div id="last-update">Última atualização: --</div>
+      <button id="reset">🗑️ Resetar Estoque</button>
 
-    <table aria-label="Tabela de controle de estoque de remédios">
-      <thead>
-        <tr>
-          <th scope="col">Remédio</th>
-          <th scope="col">Estoque Inicial</th>
-          <th scope="col">Total Entradas</th>
-          <th scope="col">Total Saídas</th>
-          <th scope="col">Estoque Atual</th>
-          <th scope="col">Ações</th>
-        </tr>
-      </thead>
-      <tbody id="meds-table-body"></tbody>
-    </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Remédio</th><th>Inicial</th><th>Entradas</th><th>Saídas</th><th>Atual</th><th>Setor</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="meds-table"></tbody>
+      </table>
+    </section>
+
+    <!-- Conteúdo: relatório -->
+    <section id="relatorio-content" style="display:none">
+      <h2>📊 Saídas por Setor</h2>
+      <table>
+        <thead>
+          <tr><th>Setor</th><th>Remédio</th><th>Quantidade</th></tr>
+        </thead>
+        <tbody id="relatorio-table"></tbody>
+      </table>
+    </section>
   </div>
 
-  <!-- Botão WhatsApp -->
-  <a href="https://wa.me/5562991125182" target="_blank" rel="noopener noreferrer"
-     class="whatsapp-btn" aria-label="Contato WhatsApp">📞</a>
-
-  <!-- Scripts -->
   <script src="script.js"></script>
-  <script>
-    /* Registro do Service Worker */
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
-          .catch(err => console.error('❌ Falha no SW:', err));
-      });
-    }
-  </script>
 </body>
 </html>
