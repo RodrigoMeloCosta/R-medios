@@ -1,20 +1,3 @@
-// ================= CONFIGURAÇÃO FIREBASE =================
-// Substitua os valores abaixo pela sua configuração do Firebase:
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  databaseURL: "https://SEU_PROJETO.firebaseio.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "NUMERO",
-  appId: "APP_ID"
-};
-
-// Inicializa Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ================= DADOS INICIAIS =================
 const initialMedicamentos = [
   { nome: "Dorflex", estoqueInicial: 50, entradas: 0, saidas: 0 },
   { nome: "Torsilax", estoqueInicial: 50, entradas: 0, saidas: 0 },
@@ -26,13 +9,10 @@ const initialMedicamentos = [
   { nome: "Faixa", estoqueInicial: 10, entradas: 0, saidas: 0 },
   { nome: "Dipirona", estoqueInicial: 20, entradas: 0, saidas: 0 },
   { nome: "Bandeide", estoqueInicial: 7, entradas: 0, saidas: 0 },
-  { nome: "Soro fisiológico", estoqueInicial: 4, entradas: 0, saidas: 0 }
+  { nome: "Soro fisiológico", estoqueInicial: 4, entradas: 0, saidas: 0 },
 ];
 
-// ================= VARIÁVEL GLOBAL =================
 let medicamentos = [];
-
-// ================= FUNÇÕES =================
 
 function estoqueAtual(med) {
   return med.estoqueInicial + med.entradas - med.saidas;
@@ -59,9 +39,9 @@ function renderizarTabela() {
       <td data-label="Total Saídas">${med.saidas}</td>
       <td data-label="Estoque Atual">${atual}</td>
       <td data-label="Ações" class="actions">
-        <input type="number" id="quant-${idx}" value="0" step="1" />
-        <button onclick="lancar(${idx})">Lançar</button>
-        <button onclick="corrigir(${idx})" style="background:#f90;margin-top:6px">Corrigir</button>
+        <input type="number" id="quant-${idx}" value="0" step="1" min="0" />
+        <button onclick="lancar(${idx})" aria-label="Lançar quantidade para ${med.nome}">Lançar</button>
+        <button onclick="corrigir(${idx})" style="background:#f4a261;margin-top:6px" aria-label="Corrigir dados de ${med.nome}">Corrigir</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -70,25 +50,21 @@ function renderizarTabela() {
   atualizarUltimaAtualizacao();
 }
 
-// Atualiza no Firebase
-function salvarNoFirebase() {
-  db.ref("medicamentos").set(medicamentos);
+function salvarLocal() {
+  localStorage.setItem("medicamentos", JSON.stringify(medicamentos));
+  atualizarUltimaAtualizacao();
 }
 
-// Carrega do Firebase
-function carregarDoFirebase() {
-  db.ref("medicamentos").once("value", (snapshot) => {
-    if (snapshot.exists()) {
-      medicamentos = snapshot.val();
-    } else {
-      medicamentos = initialMedicamentos;
-      salvarNoFirebase();
-    }
-    renderizarTabela();
-  });
+function carregarLocal() {
+  const dados = localStorage.getItem("medicamentos");
+  if (dados) {
+    medicamentos = JSON.parse(dados);
+  } else {
+    medicamentos = JSON.parse(JSON.stringify(initialMedicamentos));
+    salvarLocal();
+  }
 }
 
-// Botão lançar quantidade
 function lancar(idx) {
   const input = document.getElementById(`quant-${idx}`);
   const val = Number(input.value);
@@ -110,47 +86,60 @@ function lancar(idx) {
   else med.saidas += Math.abs(val);
 
   input.value = 0;
-  salvarNoFirebase();
+  salvarLocal();
   renderizarTabela();
 }
 
-// Botão corrigir dados manualmente
 function corrigir(idx) {
   const med = medicamentos[idx];
   const novos = prompt(
-    `Corrigir ${med.nome}:\nInforme os 3 valores separados por vírgula:\nEstoque Inicial, Entradas, Saídas`,
+    `Corrigir ${med.nome}:\nInforme os 3 valores separados por vírgula:\nEstoque Inicial, Entradas, Saídas\nValores atuais: ${med.estoqueInicial}, ${med.entradas}, ${med.saidas}`,
     `${med.estoqueInicial},${med.entradas},${med.saidas}`
   );
-
   if (!novos) return;
 
-  const [novoEstoque, novaEntrada, novaSaida] = novos.split(",").map(Number);
-
-  if (
-    isNaN(novoEstoque) ||
-    isNaN(novaEntrada) ||
-    isNaN(novaSaida)
-  ) {
-    alert("Valores inválidos. Use apenas números separados por vírgula.");
+  const parts = novos.split(",").map(s => parseInt(s.trim(), 10));
+  if (parts.length !== 3 || parts.some(isNaN)) {
+    alert("Entrada inválida. Informe três números separados por vírgula.");
     return;
   }
 
-  med.estoqueInicial = novoEstoque;
-  med.entradas = novaEntrada;
-  med.saidas = novaSaida;
-
-  salvarNoFirebase();
+  medicamentos[idx].estoqueInicial = parts[0];
+  medicamentos[idx].entradas = parts[1];
+  medicamentos[idx].saidas = parts[2];
+  salvarLocal();
   renderizarTabela();
 }
 
-// Botão resetar (limpar dados no Firebase)
-document.getElementById("reset").addEventListener("click", () => {
-  if (confirm("Isso apagará os dados salvos e voltará aos valores iniciais. Continuar?")) {
-    medicamentos = initialMedicamentos;
-    salvarNoFirebase();
+function resetarEstoque() {
+  if (confirm("Deseja realmente resetar o estoque para os valores iniciais?")) {
+    medicamentos = JSON.parse(JSON.stringify(initialMedicamentos));
+    salvarLocal();
     renderizarTabela();
+  }
+}
+
+// LOGIN SIMPLES
+document.getElementById("login-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const u = e.target.username.value.trim();
+  const p = e.target.password.value.trim();
+  const erroEl = document.getElementById("login-error");
+
+  if (u === "matheus.sso" && p === "sso") {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("controle-screen").style.display = "block";
+    erroEl.textContent = "";
+    carregarLocal();
+    renderizarTabela();
+  } else {
+    erroEl.textContent = "Usuário ou senha inválidos 🔐";
   }
 });
 
-// Ao carregar a página, traz os dados do Firebase
-carregarDoFirebase();
+document.getElementById("reset").addEventListener("click", resetarEstoque);
+
+// Alternar tema claro/escuro
+document.getElementById("toggle-theme").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+});
