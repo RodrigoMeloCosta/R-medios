@@ -1,136 +1,156 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background-color: #f0f4f7;
-  color: #333;
+// ================= CONFIGURAÇÃO FIREBASE =================
+// Substitua os valores abaixo pela sua configuração do Firebase:
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  databaseURL: "https://SEU_PROJETO.firebaseio.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "NUMERO",
+  appId: "APP_ID"
+};
+
+// Inicializa Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ================= DADOS INICIAIS =================
+const initialMedicamentos = [
+  { nome: "Dorflex", estoqueInicial: 50, entradas: 0, saidas: 0 },
+  { nome: "Torsilax", estoqueInicial: 50, entradas: 0, saidas: 0 },
+  { nome: "Eno", estoqueInicial: 22, entradas: 0, saidas: 0 },
+  { nome: "Paracetamol", estoqueInicial: 40, entradas: 0, saidas: 0 },
+  { nome: "Nimesulida", estoqueInicial: 12, entradas: 0, saidas: 0 },
+  { nome: "Gelol", estoqueInicial: 5, entradas: 0, saidas: 0 },
+  { nome: "Esparadrapo", estoqueInicial: 0, entradas: 0, saidas: 0 },
+  { nome: "Faixa", estoqueInicial: 10, entradas: 0, saidas: 0 },
+  { nome: "Dipirona", estoqueInicial: 20, entradas: 0, saidas: 0 },
+  { nome: "Bandeide", estoqueInicial: 7, entradas: 0, saidas: 0 },
+  { nome: "Soro fisiológico", estoqueInicial: 4, entradas: 0, saidas: 0 }
+];
+
+// ================= VARIÁVEL GLOBAL =================
+let medicamentos = [];
+
+// ================= FUNÇÕES =================
+
+function estoqueAtual(med) {
+  return med.estoqueInicial + med.entradas - med.saidas;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+function atualizarUltimaAtualizacao() {
+  document.getElementById("last-update").textContent =
+    "Última atualização: " + new Date().toLocaleString("pt-BR");
 }
 
-#last-update {
-  text-align: center;
-  margin-bottom: 10px;
-  font-style: italic;
-  color: #555;
+function renderizarTabela() {
+  const tbody = document.getElementById("meds-table-body");
+  tbody.innerHTML = "";
+
+  medicamentos.forEach((med, idx) => {
+    const atual = estoqueAtual(med);
+    const tr = document.createElement("tr");
+    if (atual < 3) tr.classList.add("low-stock");
+
+    tr.innerHTML = `
+      <td data-label="Remédio">${med.nome}</td>
+      <td data-label="Estoque Inicial">${med.estoqueInicial}</td>
+      <td data-label="Total Entradas">${med.entradas}</td>
+      <td data-label="Total Saídas">${med.saidas}</td>
+      <td data-label="Estoque Atual">${atual}</td>
+      <td data-label="Ações" class="actions">
+        <input type="number" id="quant-${idx}" value="0" step="1" />
+        <button onclick="lancar(${idx})">Lançar</button>
+        <button onclick="corrigir(${idx})" style="background:#f90;margin-top:6px">Corrigir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  atualizarUltimaAtualizacao();
 }
 
-button#reset {
-  display: block;
-  margin: 0 auto 20px auto;
-  padding: 8px 15px;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+// Atualiza no Firebase
+function salvarNoFirebase() {
+  db.ref("medicamentos").set(medicamentos);
 }
 
-button#reset:hover {
-  background-color: #c0392b;
+// Carrega do Firebase
+function carregarDoFirebase() {
+  db.ref("medicamentos").once("value", (snapshot) => {
+    if (snapshot.exists()) {
+      medicamentos = snapshot.val();
+    } else {
+      medicamentos = initialMedicamentos;
+      salvarNoFirebase();
+    }
+    renderizarTabela();
+  });
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: white;
-  box-shadow: 0 0 10px #ccc;
-}
+// Botão lançar quantidade
+function lancar(idx) {
+  const input = document.getElementById(`quant-${idx}`);
+  const val = Number(input.value);
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background-color: #3498db;
-  color: white;
-}
-
-.low-stock {
-  background-color: #ffe6e6 !important;
-}
-
-.actions input[type="number"] {
-  width: 60px;
-  padding: 5px;
-  margin-right: 6px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.actions button {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.actions button:first-child {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.actions button:first-child:hover {
-  background-color: #27ae60;
-}
-
-.actions button:last-child {
-  background-color: #f39c12;
-  color: white;
-  margin-top: 6px;
-}
-
-.actions button:last-child:hover {
-  background-color: #d68910;
-}
-
-@media(max-width: 600px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
+  if (!val) {
+    alert("Digite um valor diferente de zero.");
+    return;
   }
 
-  th {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
+  const med = medicamentos[idx];
+  const atual = estoqueAtual(med);
+
+  if (val < 0 && Math.abs(val) > atual) {
+    alert(`Estoque insuficiente para retirar ${Math.abs(val)} unidades de ${med.nome}.`);
+    return;
   }
 
-  tr {
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    padding: 10px;
-  }
+  if (val > 0) med.entradas += val;
+  else med.saidas += Math.abs(val);
 
-  td {
-    border: none;
-    position: relative;
-    padding-left: 50%;
-    text-align: left;
-  }
-
-  td:before {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 45%;
-    white-space: nowrap;
-    font-weight: bold;
-    content: attr(data-label);
-  }
-
-  .actions input[type="number"] {
-    width: 100%;
-    margin-bottom: 6px;
-  }
-
-  .actions button:last-child {
-    margin-top: 0;
-  }
+  input.value = 0;
+  salvarNoFirebase();
+  renderizarTabela();
 }
+
+// Botão corrigir dados manualmente
+function corrigir(idx) {
+  const med = medicamentos[idx];
+  const novos = prompt(
+    `Corrigir ${med.nome}:\nInforme os 3 valores separados por vírgula:\nEstoque Inicial, Entradas, Saídas`,
+    `${med.estoqueInicial},${med.entradas},${med.saidas}`
+  );
+
+  if (!novos) return;
+
+  const [novoEstoque, novaEntrada, novaSaida] = novos.split(",").map(Number);
+
+  if (
+    isNaN(novoEstoque) ||
+    isNaN(novaEntrada) ||
+    isNaN(novaSaida)
+  ) {
+    alert("Valores inválidos. Use apenas números separados por vírgula.");
+    return;
+  }
+
+  med.estoqueInicial = novoEstoque;
+  med.entradas = novaEntrada;
+  med.saidas = novaSaida;
+
+  salvarNoFirebase();
+  renderizarTabela();
+}
+
+// Botão resetar (limpar dados no Firebase)
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Isso apagará os dados salvos e voltará aos valores iniciais. Continuar?")) {
+    medicamentos = initialMedicamentos;
+    salvarNoFirebase();
+    renderizarTabela();
+  }
+});
+
+// Ao carregar a página, traz os dados do Firebase
+carregarDoFirebase();
