@@ -2,15 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Controle de Estoque de Remédios</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controle de Estoque de Remédios Online</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <h1>Controle de Estoque de Remédios (por comprimido)</h1>
+  <h1>Controle de Estoque de Remédios Online</h1>
   <div id="last-update">Última atualização: --</div>
-  <button id="reset">🗑️ Limpar banco (reset)</button>
+  <button id="reset">🗑️ Limpar banco (reset)</button>
 
   <table aria-label="Tabela de controle de estoque de remédios">
     <thead>
