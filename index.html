@@ -1,33 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Estoque de Remédios Online</title>
+  <title>🔐 Login - Controle de Remédios</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <h1>Controle de Estoque de Remédios Online</h1>
-  <div id="last-update">Última atualização: --</div>
-  <button id="reset">🗑️ Limpar banco (reset)</button>
+  <div id="login-screen" class="screen">
+    <div class="login-box" role="main" aria-label="Formulário de login">
+      <h1> <center> Bem vindo, Matheus!</h1>
+      <form id="login-form" autocomplete="off">
+        <label for="username">👤 Usuário:</label>
+        <input type="text" id="username" name="username" placeholder="Digite seu usuário" required autocomplete="username" />
 
-  <table aria-label="Tabela de controle de estoque de remédios">
-    <thead>
-      <tr>
-        <th>Remédio</th>
-        <th>Estoque Inicial<br>(comprimidos)</th>
-        <th>Total Entradas</th>
-        <th>Total Saídas</th>
-        <th>Estoque Atual</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="meds-table-body"></tbody>
-  </table>
+        <label for="password">🔒 Senha:</label>
+        <input type="password" id="password" name="password" placeholder="Digite sua senha" required autocomplete="current-password" />
+
+        <button type="submit" aria-label="Entrar no sistema">Entrar 🚀</button>
+        <div id="login-error" class="error-message" role="alert" aria-live="assertive"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="controle-screen" class="screen" style="display:none;" role="main" aria-label="Controle de estoque de remédios">
+    <div class="header-controle">
+      <h1>💊 Controle de Estoque de Remédios</h1>
+      <button id="toggle-theme" aria-label="Alternar modo claro e escuro">🌗 Modo Claro/Escuro</button>
+    </div>
+    <div id="last-update" aria-live="polite">Última atualização: --</div>
+    <button id="reset" aria-label="Resetar estoque">🗑️ Resetar Estoque</button>
+
+    <table aria-label="Tabela de controle de estoque de remédios">
+      <thead>
+        <tr>
+          <th scope="col">Remédio</th>
+          <th scope="col">Estoque Inicial (comprimidos)</th>
+          <th scope="col">Total Entradas</th>
+          <th scope="col">Total Saídas</th>
+          <th scope="col">Estoque Atual</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="meds-table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Botão de contato telefone -->
+  <a href="https://wa.me/5562991125182" target="_blank" rel="noopener noreferrer" class="whatsapp-btn" aria-label="Contato WhatsApp">
+    📞
+  </a>
 
   <script src="script.js"></script>
 </body>
