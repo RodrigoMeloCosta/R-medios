@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controle de Estoque de Remédios</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Controle de Estoque de Remédios (por comprimido)</h1>
+  <div id="last-update">Última atualização: --</div>
+  <button id="reset">🗑️ Limpar banco (reset)</button>
+
+  <table aria-label="Tabela de controle de estoque de remédios">
+    <thead>
+      <tr>
+        <th>Remédio</th>
+        <th>Estoque Inicial<br>(comprimidos)</th>
+        <th>Total Entradas</th>
+        <th>Total Saídas</th>
+        <th>Estoque Atual</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="meds-table-body"></tbody>
+  </table>
+
+  <script src="script.js"></script>
+</body>
+</html>
